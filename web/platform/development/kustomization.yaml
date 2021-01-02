@@ -1,0 +1,11 @@
+namespace: alice-web-development
+commonLabels:
+  variant: development
+commonAnnotations:
+  note: This is a development environment
+resources:
+  - ../base
+  - namespace.yaml
+  - ingress.yaml
+patchesStrategicMerge:
+  - deployment_spec.yaml
