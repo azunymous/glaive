@@ -8,9 +8,10 @@ import (
 )
 
 type Thread struct {
-	Post    `json:"post"`
-	Subject string `json:"subject"`
-	Replies []Post `json:"replies"`
+	Post              `json:"post"`
+	Subject           string    `json:"subject"`
+	Replies           []Post    `json:"replies"`
+	LastPostTimestamp time.Time `json:"last_post_timestamp"`
 }
 
 // Returns the index and post of the reply with the given post no.
@@ -32,6 +33,7 @@ type Post struct {
 	Comment         string    `json:"comment"`
 	CommentSegments []Segment `json:"comment_segments"`
 	Image           string    `json:"image"`
+	ThumbnailImage  string    `json:"thumbnail_image"`
 	Filename        string    `json:"filename"`
 	Meta            string    `json:"meta"`
 	QuotedBy        []uint64  `json:"quoted_by"`

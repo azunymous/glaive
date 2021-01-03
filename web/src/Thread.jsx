@@ -5,6 +5,7 @@ import './Board.css';
 import './Hover.css';
 
 import objection from './objection.gif'
+import TimeForm from "./TimeForm";
 
 
 class Thread extends React.Component {
@@ -172,7 +173,13 @@ class Thread extends React.Component {
         if (this.state.thread === undefined || this.state.thread === null || this.state.status === "FAILURE") {
             return (<div>. . .</div>)
         }
-        return this.displayThread(this.state.thread)
+
+        return (
+            <div>
+                {this.displayTimer()}
+                {this.displayThread(this.state.thread)}
+            </div>
+        )
     }
 
     findPost(thread, postNo) {
@@ -186,6 +193,13 @@ class Thread extends React.Component {
             }
         }
         return null;
+    }
+
+    displayTimer() {
+        let enabled = this.state.limit === undefined || this.state.limit === 0 || this.state.limit === null
+        if (enabled) {
+            return <TimeForm time={new Date()} timeSetter={(v) => {}}/>
+        }
     }
 }
 

@@ -10,7 +10,6 @@ import {
 import Board from './Board'
 import Thread from "./Thread";
 import './Board.css';
-import NewPostForm from "./NewPostForm";
 
 function App() {
   let [boards, setBoards] = useState([]);
@@ -86,7 +85,6 @@ function App() {
     let {apiURL, imageContext} = getBoardDetails(boardID);
     return (
         <div>
-          <NewPostForm board={boardID} threadNo={threadNo}  apiUrl={apiURL}/>
           <Thread board={boardID} no={threadNo} apiUrl={apiURL} imageContext={imageContext}/>
         </div>
     );
