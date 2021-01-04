@@ -6,6 +6,7 @@ import './Hover.css';
 
 import objection from './objection.gif'
 import TimeForm from "./TimeForm";
+import {Hover} from "./Hover";
 
 
 class Thread extends React.Component {
@@ -61,7 +62,7 @@ class Thread extends React.Component {
                     to={"/" + this.state.board + "/res/" + thread.post.no}>{thread.post.no}</Link> <span
                     className="quotedBy">{this.quotedBy(thread.post, thread)}</span></span>
 
-                    <div><span className="content">{this.displayComment(thread.post)}</span></div>
+                    <div><span className="content">{this.displayComment(thread.post, thread)}</span></div>
                 </div>
                 <div className="replies">
                     {this.displayReplies(thread, 5)}
@@ -87,23 +88,21 @@ class Thread extends React.Component {
             <span className="postHeader"><span
                 className="postName">{post.name}</span> {post.timestamp} No. {post.no} <span
                 className="quotedBy">{this.quotedBy(post, thread, hover)}</span></span>
-            <div><span className="content">{this.displayComment(post)}</span></div>
+            <div><span className="content">{this.displayComment(post, thread)}</span></div>
         </div>;
     }
 
-    displayComment(post) {
+    displayComment(post, thread) {
         if (post.comment_segments == null) {
             return post.comment;
         }
 
-
         return post.comment_segments.map((segment, i) => {
-            return this.displaySegment(segment, i)
+            return this.displaySegment(segment, i, post, thread)
         })
     }
 
-
-    displaySegment(segment, i) {
+    displaySegment(segment, i, post, thread) {
         switch (segment.format[0]) {
             case "objection":
                 return (
@@ -112,6 +111,14 @@ class Thread extends React.Component {
             case "roll":
                 return (
                     <div className="roll">{Math.random() % 6}</div>
+                );
+            case "noQuote":
+                return (
+                    <div className={this.formatAsClasses(segment.format)} key={i}>
+                        <Hover key={i} onHover={this.displayPostHover(this.findPost(thread, parseInt(segment.segment.replace(">>", ""))), thread)}>
+                            <span className="noQuote" key={i}>{segment.segment}</span>
+                        </Hover>
+                    </div>
                 );
             default:
                 return (
@@ -129,17 +136,8 @@ class Thread extends React.Component {
         })
     }
 
-
     quotedBy(post, thread, hover = false) {
-        const Hover = ({onHover, children}) => (
-            <span className="hover">
-                <span className="hover__no-hover">{children}</span>
-                <span className="hover__hover">{onHover}</span>
-            </span>
-        );
-
-
-        if (post.quoted_by == null || hover) {
+      if (post.quoted_by == null || hover) {
             return <span/>
         }
         return post.quoted_by.map((postNo, i) => {

@@ -1,10 +1,11 @@
 .hover {
     position: relative;
 }
+
 .hover:hover .hover__no-hover {
-    visibility: hidden;
+    opacity: 1;
 }
-.hover:hover .hover__hover {
+.hover:hover > .hover__hover {
     visibility: visible;
 }
 .hover__hover {
