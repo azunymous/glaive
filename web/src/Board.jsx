@@ -7,11 +7,20 @@ import moment from "moment";
 class Board extends React.Component {
   constructor(props) {
     super(props);
+
+    function getTimestampFromStorageOrDefault() {
+      let storedTimestamp = localStorage.getItem('timestamp')
+      if (storedTimestamp === null) {
+        return moment(1340402891 * 1000)
+      }
+      return moment(parseInt(storedTimestamp))
+    }
+
     this.state = {
       name: this.props.name,
       apiUrl: this.props.apiUrl,
       imageContext: this.props.imageContext,
-      time: moment(1340402891 * 1000),
+      time: getTimestampFromStorageOrDefault(),
       threads: []
     }
     this.setTime = this.setTime.bind(this)
@@ -21,24 +30,29 @@ class Board extends React.Component {
     console.log("Setting time to " + time)
     this.setState({
       time: time
-    })
-    this.getAllThreads()
+    }, () => this.getAllThreads())
+    localStorage.setItem('timestamp', (time.unix() * 1000).toString())
   }
 
 
   getAllThreads() {
-    let time = ""
+    let worldTime = ""
     if (this.state.time !== null && typeof this.state.time !== 'string') {
-      time = this.state.time.unix()
+      worldTime = this.state.time.unix()
     }
-    fetch(this.state.apiUrl + '/thread/all?time=' + time)
+
+    fetch(this.state.apiUrl + '/thread/all?time=' + worldTime)
     .then((response) => {
       return response.json()
     })
     .then((json) => {
-      console.log(json);
+      if (json.status !== null && json.status === "FAILURE") {
+        console.log(json)
+        return
+      }
+
       this.setState({
-        threads: json
+        threads: json,
       })
     }).catch(console.log);
   }
@@ -61,11 +75,18 @@ class Board extends React.Component {
     if (this.state.threads == null) {
       return (<div> . . . </div>)
     }
+    if (this.state.threads.length === 0) {
+      return (<div> . </div>)
+    }
+
+    console.log(this.state.threads)
     let threads = this.state.threads.slice(0, 10);
     return threads.map((thread) => {
+
       return (<Thread key={thread.post.no} board={this.state.name}
                       apiUrl={this.state.apiUrl}
-                      imageContext={this.state.imageContext} thread={thread}
+                      imageContext={this.state.imageContext}
+                      thread={thread}
                       limit='5'/>);
     })
   }

@@ -88,7 +88,7 @@ func PostToThreads(posts []Post, discardRule func(board.Post) bool) []*board.Thr
 				Post:              p,
 				Subject:           post.Title.String,
 				Replies:           make([]board.Post, 0),
-				LastPostTimestamp: p.Timestamp,
+				LastPostTimestamp: p.Timestamp.Time,
 			}
 			threads = append(threads, t)
 			threadMap[t.No] = t
@@ -100,7 +100,7 @@ func PostToThreads(posts []Post, discardRule func(board.Post) bool) []*board.Thr
 				}
 				t.Replies = append(t.Replies, p)
 				if p.Meta == "" {
-					t.LastPostTimestamp = p.Timestamp
+					t.LastPostTimestamp = p.Timestamp.Time
 				}
 				for _, transformation := range transformations {
 					*t = transformation(*t)
@@ -122,7 +122,7 @@ func PostToThreads(posts []Post, discardRule func(board.Post) bool) []*board.Thr
 func PostToPost(post Post) (board.Post, []board.Transform) {
 	p := board.Post{
 		No:              uint64(post.Num),
-		Timestamp:       NYCToUTC(post.Timestamp),
+		Timestamp:       board.TS(NYCToUTC(post.Timestamp)),
 		Name:            post.Name.String,
 		Email:           post.Email.String,
 		Comment:         post.Comment.String,

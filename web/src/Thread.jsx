@@ -7,6 +7,7 @@ import './Hover.css';
 import objection from './objection.gif'
 import TimeForm from "./TimeForm";
 import {Hover} from "./Hover";
+import moment from "moment";
 
 
 class Thread extends React.Component {
@@ -58,7 +59,7 @@ class Thread extends React.Component {
                     <span className="image"><img alt={thread.post.filename}
                                                  src={this.displayImage(thread.post)}/></span><span
                     className="threadHeader">{thread.subject} <span
-                    className="postName">{thread.post.name}</span> {thread.post.timestamp} No. <Link
+                    className="postName">{thread.post.name}</span> {this.displayTimestamp(thread.post.timestamp)} No. <Link
                     to={"/" + this.state.board + "/res/" + thread.post.no}>{thread.post.no}</Link> <span
                     className="quotedBy">{this.quotedBy(thread.post, thread)}</span></span>
 
@@ -86,7 +87,7 @@ class Thread extends React.Component {
         return <div key={post.no} className="post">
             {this.optionalImage(post)}
             <span className="postHeader"><span
-                className="postName">{post.name}</span> {post.timestamp} No. {post.no} <span
+                className="postName">{post.name}</span> {this.displayTimestamp(post.timestamp)} No. {post.no} <span
                 className="quotedBy">{this.quotedBy(post, thread, hover)}</span></span>
             <div><span className="content">{this.displayComment(post, thread)}</span></div>
         </div>;
@@ -198,6 +199,10 @@ class Thread extends React.Component {
         if (enabled) {
             return <TimeForm time={new Date()} timeSetter={(v) => {}}/>
         }
+    }
+
+    displayTimestamp(timestamp) {
+        return moment(timestamp).format("dddd, MMMM Do YYYY, h:mm:ss a")
     }
 }
 

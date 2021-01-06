@@ -1,8 +1,8 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
+	jsoniter "github.com/json-iterator/go"
 	"glaive/adapter/asagi"
 	"glaive/board"
 	"log"
@@ -15,6 +15,7 @@ import (
 )
 
 var loader *asagi.Loader
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 func main() {
 	fmt.Printf("glaive")

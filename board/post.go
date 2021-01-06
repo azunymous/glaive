@@ -27,7 +27,7 @@ func (t Thread) getReplyWithPostNo(no uint64) (index int, p Post) {
 
 type Post struct {
 	No              uint64    `json:"no"`
-	Timestamp       time.Time `json:"timestamp"`
+	Timestamp       Timestamp `json:"timestamp"`
 	Name            string    `json:"name"`
 	Email           string    `json:"email"`
 	Comment         string    `json:"comment"`
@@ -37,6 +37,19 @@ type Post struct {
 	Filename        string    `json:"filename"`
 	Meta            string    `json:"meta"`
 	QuotedBy        []uint64  `json:"quoted_by"`
+}
+
+type Timestamp struct {
+	time.Time
+}
+
+func TS(t time.Time) Timestamp {
+	return Timestamp{t}
+}
+
+func (t *Timestamp) MarshalJSON() ([]byte, error) {
+	timestamp := t.Time.UnixNano() / int64(time.Millisecond)
+	return []byte(strconv.Itoa(int(timestamp))), nil
 }
 
 func (p Post) quotedBy(postQuotingNo uint64) Post {

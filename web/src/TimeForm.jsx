@@ -6,7 +6,6 @@ function TimeForm(props) {
     let time = props.time
     let setTime = props.timeSetter
 
-
     return (
         <div>
             <Datetime
