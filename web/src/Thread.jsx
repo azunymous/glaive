@@ -5,10 +5,11 @@ import './Board.css';
 import './Hover.css';
 
 import objection from './objection.gif'
-import TimeForm from "./TimeForm";
 import {Hover} from "./Hover";
 import moment from "moment";
 
+
+const timestampDisplayFormat = "dddd, MMMM Do YYYY, h:mm:ss a";
 
 class Thread extends React.Component {
     constructor(props) {
@@ -20,7 +21,8 @@ class Thread extends React.Component {
             imageContext: this.props.imageContext,
             no: this.props.no,
             thread: this.props.thread,
-            limit: this.props.limit
+            limit: this.props.limit,
+            time: this.props.time,
         }
     }
 
@@ -66,7 +68,7 @@ class Thread extends React.Component {
                     <div><span className="content">{this.displayComment(thread.post, thread)}</span></div>
                 </div>
                 <div className="replies">
-                    {this.displayReplies(thread, 5)}
+                    {this.displayReplies(thread)}
                 </div>
             </div>
         );
@@ -77,6 +79,11 @@ class Thread extends React.Component {
             thread.replies = thread.replies.slice(-this.state.limit)
         }
         return thread.replies.map((post) => {
+            if (this.isTimerEnabled()) {
+                if (moment(post.timestamp).isAfter(this.state.time)) {
+                    return (<span key={post.no}/>)
+                }
+            }
             return (
                 this.displayPost(post, thread)
             )
@@ -142,8 +149,12 @@ class Thread extends React.Component {
             return <span/>
         }
         return post.quoted_by.map((postNo, i) => {
+            let foundPost = this.findPost(thread, postNo)
+            if (foundPost == null || moment(foundPost.timestamp).isAfter(this.state.time)) {
+                return (<span key={i}/>)
+            }
             return (
-                <Hover key={i} onHover={this.displayPostHover(this.findPost(thread, postNo), thread)}>
+                <Hover key={i} onHover={this.displayPostHover(foundPost, thread)}>
                     <span className="noQuote" key={i}>>>{postNo} </span>
                 </Hover>
 
@@ -157,6 +168,10 @@ class Thread extends React.Component {
         }
 
         return this.displayPost(post, thread, true)
+    }
+
+    displayTimestamp(timestamp) {
+        return moment(timestamp).format(timestampDisplayFormat)
     }
 
     optionalImage(post) {
@@ -194,15 +209,14 @@ class Thread extends React.Component {
         return null;
     }
 
-    displayTimer() {
-        let enabled = this.state.limit === undefined || this.state.limit === 0 || this.state.limit === null
-        if (enabled) {
-            return <TimeForm time={new Date()} timeSetter={(v) => {}}/>
-        }
+    isTimerEnabled() {
+        return this.state.limit === undefined || this.state.limit === 0 || this.state.limit === null
     }
 
-    displayTimestamp(timestamp) {
-        return moment(timestamp).format("dddd, MMMM Do YYYY, h:mm:ss a")
+    displayTimer() {
+        return (
+            <span className={"timer"}>World Time: {this.state.time.format(timestampDisplayFormat)}</span>
+        )
     }
 }
 

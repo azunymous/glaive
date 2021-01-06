@@ -38,6 +38,10 @@ h2 {
     text-align: center;
 }
 
+.timer {
+    float: right;
+}
+
 del, del em {
     background-color: black;
     color: black;

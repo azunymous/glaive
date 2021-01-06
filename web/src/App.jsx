@@ -10,9 +10,26 @@ import {
 import Board from './Board'
 import Thread from "./Thread";
 import './Board.css';
+import moment from "moment";
+import Datetime from "react-datetime";
 
 function App() {
   let [boards, setBoards] = useState([]);
+
+  function getTimestampFromStorageOrDefault() {
+      let storedTimestamp = localStorage.getItem('timestamp')
+      if (storedTimestamp === null) {
+          return moment(1340402891 * 1000)
+      }
+      return moment(parseInt(storedTimestamp))
+  }
+
+  let [worldTime, setWorldTime] = useState(getTimestampFromStorageOrDefault);
+  function setWorldTimeAndLocalStorage(time) {
+      localStorage.setItem('timestamp', (time.unix() * 1000).toString())
+      setWorldTime(time)
+  }
+
   useEffect(getBoards, []);
 
   return (
@@ -69,7 +86,11 @@ function App() {
     }
     let {apiURL, imageContext} = getBoardDetails(boardID);
     return (
-        <Board name={boardID} apiUrl={apiURL} imageContext={imageContext}/>
+        <div>
+            <WorldClock time={worldTime} timeSetter={setWorldTime}/>
+            <Board name={boardID} apiUrl={apiURL} imageContext={imageContext} time={worldTime}/>
+        </div>
+
     );
   }
 
@@ -85,7 +106,8 @@ function App() {
     let {apiURL, imageContext} = getBoardDetails(boardID);
     return (
         <div>
-          <Thread board={boardID} no={threadNo} apiUrl={apiURL} imageContext={imageContext}/>
+            <WorldClock time={worldTime} timeSetter={setWorldTime}/>
+            <Thread board={boardID} no={threadNo} apiUrl={apiURL} imageContext={imageContext} time={worldTime} setTime={setWorldTimeAndLocalStorage}/>
         </div>
     );
   }
@@ -101,6 +123,22 @@ function App() {
       )
     })
   }
+
+
+    function WorldClock(props) {
+        let time = props.time
+        return (
+            <div>
+                <Datetime
+                    value={time}
+                    onChange={setWorldTimeAndLocalStorage}
+                />
+            </div>
+        )
+    }
 }
+
+
+
 
 export default App;

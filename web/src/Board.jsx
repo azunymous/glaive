@@ -1,39 +1,19 @@
 import React from 'react';
 import './Board.css';
 import Thread from "./Thread";
-import TimeForm from "./TimeForm";
-import moment from "moment";
 
 class Board extends React.Component {
   constructor(props) {
     super(props);
 
-    function getTimestampFromStorageOrDefault() {
-      let storedTimestamp = localStorage.getItem('timestamp')
-      if (storedTimestamp === null) {
-        return moment(1340402891 * 1000)
-      }
-      return moment(parseInt(storedTimestamp))
-    }
-
     this.state = {
       name: this.props.name,
       apiUrl: this.props.apiUrl,
       imageContext: this.props.imageContext,
-      time: getTimestampFromStorageOrDefault(),
+      time: this.props.time,
       threads: []
     }
-    this.setTime = this.setTime.bind(this)
   }
-
-  setTime(time) {
-    console.log("Setting time to " + time)
-    this.setState({
-      time: time
-    }, () => this.getAllThreads())
-    localStorage.setItem('timestamp', (time.unix() * 1000).toString())
-  }
-
 
   getAllThreads() {
     let worldTime = ""
@@ -65,7 +45,6 @@ class Board extends React.Component {
     return (
         <div>
           <h2>/{this.state.name}/</h2>
-          <TimeForm apiUrl={this.state.apiUrl} time={this.state.time} timeSetter={this.setTime}/>
           {this.allThreads()}
         </div>
     );
