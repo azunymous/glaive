@@ -39,7 +39,12 @@ h2 {
 }
 
 .timer {
+    float: left;
+}
+
+.worldTime {
     float: right;
+    padding-bottom: 10px;
 }
 
 del, del em {
@@ -92,6 +97,10 @@ div.post {
     margin-right: 5px;
     min-width: 40%;
     display: table;
+}
+
+.hover .post {
+    width: max-content;
 }
 
 .postHeader {

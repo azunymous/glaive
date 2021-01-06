@@ -10,11 +10,12 @@ import {
 import Board from './Board'
 import Thread from "./Thread";
 import './Board.css';
+import 'flatpickr/dist/themes/airbnb.css'
 import moment from "moment";
-import Datetime from "react-datetime";
+import Flatpickr from "react-flatpickr";
 
 function App() {
-  let [boards, setBoards] = useState([]);
+    let [boards, setBoards] = useState([]);
 
   function getTimestampFromStorageOrDefault() {
       let storedTimestamp = localStorage.getItem('timestamp')
@@ -26,8 +27,12 @@ function App() {
 
   let [worldTime, setWorldTime] = useState(getTimestampFromStorageOrDefault);
   function setWorldTimeAndLocalStorage(time) {
-      localStorage.setItem('timestamp', (time.unix() * 1000).toString())
-      setWorldTime(time)
+      console.log(time)
+      // if (time !== null && typeof time !== 'string') {
+          let momentTime = moment(time)
+          localStorage.setItem('timestamp', (momentTime.unix() * 1000).toString())
+          setWorldTime(momentTime)
+      // }
   }
 
   useEffect(getBoards, []);
@@ -107,7 +112,7 @@ function App() {
     return (
         <div>
             <WorldClock time={worldTime} timeSetter={setWorldTime}/>
-            <Thread board={boardID} no={threadNo} apiUrl={apiURL} imageContext={imageContext} time={worldTime} setTime={setWorldTimeAndLocalStorage}/>
+            <Thread board={boardID} no={threadNo} apiUrl={apiURL} imageContext={imageContext} time={worldTime}/>
         </div>
     );
   }
@@ -128,10 +133,11 @@ function App() {
     function WorldClock(props) {
         let time = props.time
         return (
-            <div>
-                <Datetime
-                    value={time}
-                    onChange={setWorldTimeAndLocalStorage}
+            <div className={"worldTime"}>
+                <Flatpickr
+                    data-enable-time
+                    value={time.toDate()}
+                    onClose={(selectedDates, dateStr, instance) => setWorldTimeAndLocalStorage(dateStr)}
                 />
             </div>
         )

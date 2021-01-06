@@ -1,5 +1,6 @@
 import React from 'react';
 import {Link} from "react-router-dom";
+import momentLocalizer from 'react-widgets-moment';
 
 import './Board.css';
 import './Hover.css';
@@ -30,6 +31,12 @@ class Thread extends React.Component {
         if (this.state.thread === undefined || this.state.thread === null || this.state.status === "FAILURE") {
             this.getThread()
         }
+        if (this.isTimerEnabled()) {
+            this.interval = setInterval(() => this.setState({time: this.state.time.add(1, 'seconds')}), 1 * 1000);
+        }
+    }
+    componentWillUnmount() {
+        clearInterval(this.interval);
     }
 
     getThread() {
@@ -214,9 +221,12 @@ class Thread extends React.Component {
     }
 
     displayTimer() {
-        return (
-            <span className={"timer"}>World Time: {this.state.time.format(timestampDisplayFormat)}</span>
-        )
+        if (this.isTimerEnabled()) {
+            return (
+                <span className={"timer"}>World Time: {this.state.time.format(timestampDisplayFormat)}</span>
+            )
+        }
+        return <span/>
     }
 }
 
