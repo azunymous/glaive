@@ -7,6 +7,7 @@ import './Hover.css';
 import objection from './objection.gif'
 import {Hover} from "./Hover";
 import moment from "moment";
+import {Waypoint} from "react-waypoint";
 
 
 const timestampDisplayFormat = "dddd, MMMM Do YYYY, h:mm:ss a";
@@ -23,15 +24,42 @@ class Thread extends React.Component {
             thread: this.props.thread,
             limit: this.props.limit,
             time: this.props.time,
+            scrollToBottom: false
         }
         this.lastPostRef = React.createRef()
 
     }
 
+    enableScroll = () => {
+        this.setState({scrollToBottom: true})
+    }
+
+    disableScroll = () => {
+        this.setState({scrollToBottom: false})
+    }
+
     scrollToBottom = () => {
-        if (this.lastPostRef.current !== null) {
-            this.lastPostRef.scrollIntoView({behavior: 'smooth'});
+        if (this.isTimerEnabled() && this.state.scrollToBottom) {
+            if (this.lastPostRef.current !== null) {
+                this.lastPostRef.scrollIntoView({behavior: 'smooth'});
+            }
         }
+    }
+
+    displayWaypoint = () => {
+        if (this.isTimerEnabled()) {
+            return (
+                <Waypoint
+                    onEnter={this.enableScroll}
+                    onLeave={this.disableScroll}
+                />
+            )
+        }
+        return <span/>
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        this.scrollToBottom()
     }
 
     componentDidMount() {
@@ -90,6 +118,7 @@ class Thread extends React.Component {
                 <div className="replies">
                     {this.displayReplies(thread)}
                 </div>
+                {this.displayWaypoint()}
                 <div ref={lastPostRef => { this.lastPostRef = lastPostRef; }}/>
             </div>
         );
