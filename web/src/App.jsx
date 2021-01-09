@@ -90,6 +90,7 @@ function App() {
       )
     }
     let {apiURL, imageContext} = getBoardDetails(boardID);
+    console.log("Showing board " + boardID)
     return (
         <div>
             <WorldClock time={worldTime} timeSetter={setWorldTime}/>

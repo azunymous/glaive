@@ -1,6 +1,5 @@
 import React from 'react';
 import {Link} from "react-router-dom";
-import momentLocalizer from 'react-widgets-moment';
 
 import './Board.css';
 import './Hover.css';
@@ -25,6 +24,14 @@ class Thread extends React.Component {
             limit: this.props.limit,
             time: this.props.time,
         }
+        this.lastPostRef = React.createRef()
+
+    }
+
+    scrollToBottom = () => {
+        if (this.lastPostRef.current !== null) {
+            this.lastPostRef.scrollIntoView({behavior: 'smooth'});
+        }
     }
 
     componentDidMount() {
@@ -32,9 +39,10 @@ class Thread extends React.Component {
             this.getThread()
         }
         if (this.isTimerEnabled()) {
-            this.interval = setInterval(() => this.setState({time: this.state.time.add(1, 'seconds')}), 1 * 1000);
+            this.interval = setInterval(() => this.setState({time: this.state.time.add(1, 'seconds')}), 1000);
         }
     }
+
     componentWillUnmount() {
         clearInterval(this.interval);
     }
@@ -53,11 +61,16 @@ class Thread extends React.Component {
             }).catch(console.log);
     }
 
-    displayImage(post) {
-        if (this.state.imageContext.startsWith("http")) {
-            return this.state.imageContext + "/" + post.image
+    displayImage(post, thumbnail = false) {
+        let imgPath = post.image
+        if (thumbnail) {
+            imgPath = post.thumbnail_image
         }
-        return process.env.PUBLIC_URL + this.state.imageContext + post.image;
+
+        if (this.state.imageContext.startsWith("http")) {
+            return this.state.imageContext + "/" + imgPath
+        }
+        return process.env.PUBLIC_URL + this.state.imageContext + imgPath;
     }
 
     displayThread(thread) {
@@ -65,8 +78,8 @@ class Thread extends React.Component {
             <div key={thread.post.no}>
                 <hr/>
                 <div className="thread">
-                    <span className="image"><img alt={thread.post.filename}
-                                                 src={this.displayImage(thread.post)}/></span><span
+                    <span className="image"><a href={this.displayImage(thread.post)}><img alt={thread.post.filename}
+                                                 src={this.displayImage(thread.post, true)}/></a></span><span
                     className="threadHeader">{thread.subject} <span
                     className="postName">{thread.post.name}</span> {this.displayTimestamp(thread.post.timestamp)} No. <Link
                     to={"/" + this.state.board + "/res/" + thread.post.no}>{thread.post.no}</Link> <span
@@ -77,6 +90,7 @@ class Thread extends React.Component {
                 <div className="replies">
                     {this.displayReplies(thread)}
                 </div>
+                <div ref={lastPostRef => { this.lastPostRef = lastPostRef; }}/>
             </div>
         );
     }
@@ -183,8 +197,11 @@ class Thread extends React.Component {
 
     optionalImage(post) {
         if (post.image != null && post.image !== "") {
-            return <span className="image"><img src={this.displayImage(post)}
-                                                alt={post.filename}/></span>
+            return <span className="image">
+                <a href={this.displayImage(post, false)}>
+                    <img src={this.displayImage(post, true)} alt={post.filename}/>
+                </a>
+            </span>
         } else {
             return <span className="noImage"/>
         }

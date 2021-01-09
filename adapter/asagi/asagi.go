@@ -7,14 +7,48 @@ import (
 	"glaive/board"
 	"path"
 	"sort"
+	"strings"
+	"text/template"
 	"time"
 )
 
 type Loader struct {
-	db *sqlx.DB
+	db           DB
+	getPostsSQL  string
+	getThreadSQL string
+	board        string
 }
 
-func NewLoader(dsn string) (*Loader, error) {
+type DB interface {
+	SelectContext(ctx context.Context, dest interface{}, query string, args ...interface{}) error
+}
+
+const GetPostsTemplate = `SELECT {{. }}.* FROM {{. }}_threads INNER JOIN {{. }} ON {{. }}.thread_num = {{. }}_threads.thread_num WHERE time_op <= ? AND time_last >= ?  ORDER BY doc_id;`
+const GetThreadTemplate = `SELECT * FROM {{. }} WHERE thread_num = ? ORDER BY doc_id`
+
+func NewLoader(board string, db DB) (*Loader, error) {
+	var err error
+	var sb strings.Builder
+	err = template.Must(template.New("getPostsSQL").Parse(GetPostsTemplate)).Execute(&sb, board)
+	if err != nil {
+		return nil, err
+	}
+	getPosts := sb.String()
+	sb.Reset()
+	err = template.Must(template.New("getThreadSQL").Parse(GetThreadTemplate)).Execute(&sb, board)
+	if err != nil {
+		return nil, err
+	}
+	getThread := sb.String()
+	return &Loader{
+		db:           db,
+		getPostsSQL:  getPosts,
+		getThreadSQL: getThread,
+		board:        board,
+	}, nil
+}
+
+func NewSqlConn(dsn string) (*sqlx.DB, error) {
 	db, err := sqlx.Open("mysql", dsn)
 	if err != nil {
 		return nil, err
@@ -23,21 +57,15 @@ func NewLoader(dsn string) (*Loader, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	return &Loader{
-		db: db,
-	}, nil
+	return db, err
 }
-
-const GetPosts = `SELECT c.* FROM c_threads INNER JOIN c ON c.thread_num = c_threads.thread_num WHERE time_op <= ? AND time_last >= ?  ORDER BY doc_id;`
-const GetThread = `SELECT * FROM c WHERE thread_num = ? ORDER BY doc_id`
 
 func (l *Loader) GetPostsByThread(threadNo int) ([]Post, error) {
 	ctx := context.Background()
 
 	var posts []Post
 	// The timestamp is seconds since 1st Jan 1970 NYC rather than UTC
-	err := l.db.SelectContext(ctx, &posts, GetThread, threadNo)
+	err := l.db.SelectContext(ctx, &posts, l.getThreadSQL, threadNo)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +77,7 @@ func (l *Loader) GetPosts(time time.Time) ([]Post, error) {
 	est := UTCToNYC(time.Unix())
 	var posts []Post
 	// The timestamp is seconds since 1st Jan 1970 NYC rather than UTC
-	err := l.db.SelectContext(ctx, &posts, GetPosts, est.Unix(), est.Unix())
+	err := l.db.SelectContext(ctx, &posts, l.getPostsSQL, est.Unix(), est.Unix())
 	if err != nil {
 		return nil, err
 	}
@@ -57,8 +85,8 @@ func (l *Loader) GetPosts(time time.Time) ([]Post, error) {
 	return posts, nil
 }
 
-func PostToThread(posts []Post) *board.Thread {
-	threads := PostToThreads(posts, DoNotDiscard)
+func (l *Loader) PostToThread(posts []Post) *board.Thread {
+	threads := l.PostToThreads(posts, DoNotDiscard)
 	if len(threads) > 1 {
 		panic("Only expected one thread")
 	}
@@ -78,12 +106,12 @@ func DoNotDiscard(_ board.Post) bool {
 	return false
 }
 
-func PostToThreads(posts []Post, discardRule func(board.Post) bool) []*board.Thread {
+func (l *Loader) PostToThreads(posts []Post, discardRule func(board.Post) bool) []*board.Thread {
 	var threads []*board.Thread
 	threadMap := make(map[uint64]*board.Thread)
 	for _, post := range posts {
 		if post.Op == 1 {
-			p, _ := PostToPost(post)
+			p, _ := l.PostToPost(post)
 			t := &board.Thread{
 				Post:              p,
 				Subject:           post.Title.String,
@@ -94,7 +122,7 @@ func PostToThreads(posts []Post, discardRule func(board.Post) bool) []*board.Thr
 			threadMap[t.No] = t
 		} else {
 			if t, ok := threadMap[uint64(post.ThreadNum)]; ok {
-				p, transformations := PostToPost(post)
+				p, transformations := l.PostToPost(post)
 				if discardRule(p) {
 					continue
 				}
@@ -119,7 +147,10 @@ func PostToThreads(posts []Post, discardRule func(board.Post) bool) []*board.Thr
 	return threads
 }
 
-func PostToPost(post Post) (board.Post, []board.Transform) {
+const image = "image"
+const thumb = "thumb"
+
+func (l *Loader) PostToPost(post Post) (board.Post, []board.Transform) {
 	p := board.Post{
 		No:              uint64(post.Num),
 		Timestamp:       board.TS(NYCToUTC(post.Timestamp)),
@@ -128,8 +159,8 @@ func PostToPost(post Post) (board.Post, []board.Transform) {
 		Comment:         post.Comment.String,
 		CommentSegments: nil,
 		// TODO this is only the thumbnail, the real file is post.MediaOrig
-		Image:          toPath(post.PreviewOrig.String, thumb),
-		ThumbnailImage: toPath(post.PreviewOrig.String, thumb),
+		Image:          l.toPath(post.MediaOrig.String, image),
+		ThumbnailImage: l.toPath(post.PreviewOrig.String, thumb),
 		Filename:       post.MediaFilename.String,
 		Meta:           "",
 		QuotedBy:       nil,
@@ -137,9 +168,7 @@ func PostToPost(post Post) (board.Post, []board.Transform) {
 	return p.Update()
 }
 
-const thumb = "thumb"
-
-func toPath(s string, sizeName string) string {
+func (l *Loader) toPath(s string, sizeName string) string {
 	if s == "" {
 		return ""
 	}
@@ -148,7 +177,7 @@ func toPath(s string, sizeName string) string {
 		return s
 	}
 
-	return path.Join("c", sizeName, s[:4], s[4:6], s)
+	return path.Join(l.board, sizeName, s[:4], s[4:6], s)
 
 }
 

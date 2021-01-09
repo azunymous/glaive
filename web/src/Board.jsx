@@ -7,9 +7,6 @@ class Board extends React.Component {
     super(props);
 
     this.state = {
-      name: this.props.name,
-      apiUrl: this.props.apiUrl,
-      imageContext: this.props.imageContext,
       time: this.props.time,
       threads: []
     }
@@ -21,7 +18,7 @@ class Board extends React.Component {
       worldTime = this.state.time.unix()
     }
 
-    fetch(this.state.apiUrl + '/thread/all?time=' + worldTime)
+    fetch(this.props.apiUrl + '/thread/all?time=' + worldTime)
     .then((response) => {
       return response.json()
     })
@@ -41,10 +38,17 @@ class Board extends React.Component {
     this.getAllThreads();
   }
 
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (this.props.name !== prevProps.name) {
+      this.getAllThreads()
+    }
+    return true
+  }
+
   render() {
     return (
         <div>
-          <h2>/{this.state.name}/</h2>
+          <h2>/{this.props.name}/</h2>
           {this.allThreads()}
         </div>
     );
@@ -62,9 +66,9 @@ class Board extends React.Component {
     let threads = this.state.threads.slice(0, 10);
     return threads.map((thread) => {
 
-      return (<Thread key={thread.post.no} board={this.state.name}
-                      apiUrl={this.state.apiUrl}
-                      imageContext={this.state.imageContext}
+      return (<Thread key={thread.post.no} board={this.props.name}
+                      apiUrl={this.props.apiUrl}
+                      imageContext={this.props.imageContext}
                       thread={thread}
                       limit='5'/>);
     })
