@@ -9,6 +9,7 @@ import (
 	"glaive/board"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -22,8 +23,10 @@ var json = jsoniter.ConfigCompatibleWithStandardLibrary
 func main() {
 	fmt.Printf("glaive")
 	var err error
-
-	const dsn = "root:mariadbrootpassword@tcp(127.0.0.1:3306)/asagi?charset=utf8&parseTime=True&loc=Local"
+	dsn := os.Getenv("IGIARI_SQL_DSN")
+	if dsn == "" {
+		dsn = "root:mariadbrootpassword@tcp(127.0.0.1:3306)/asagi?charset=utf8&parseTime=True&loc=Local"
+	}
 
 	db, err := asagi.NewSqlConn(dsn)
 	if err != nil {
@@ -81,8 +84,8 @@ func homePageHandler(w http.ResponseWriter, _ *http.Request) {
 func overboardHandler(w http.ResponseWriter, _ *http.Request) {
 	addHeaders(w)
 	var boards = map[string]Board{
-		"/c/":  {Host: "http://localhost:8080/c", Images: "/img/"},
-		"/po/": {Host: "http://localhost:8080/po", Images: "/img/"},
+		"/c/":  {Host: "https://igiari-api-t7tpkyzjrq-uc.a.run.app/c", Images: "https://storage.googleapis.com/igiari-glv-media"},
+		"/po/": {Host: "https://igiari-api-t7tpkyzjrq-uc.a.run.app/po", Images: "https://storage.googleapis.com/igiari-glv-media"},
 	}
 
 	w.WriteHeader(http.StatusOK)
