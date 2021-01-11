@@ -2,6 +2,7 @@
 version: 2.1
 orbs:
   gcp-gcr: circleci/gcp-gcr@0.11.0
+  cloudrun: circleci/gcp-cloud-run@1.0.2
 jobs:
   build:
     docker:
@@ -12,6 +13,24 @@ jobs:
 
       - run: go build -v ./cmd/glaive
       - run: go test -v ./...
+  deploy:
+    docker:
+      - image: 'cimg/base:stable'
+    steps:
+      - checkout
+      - cloudrun/init
+      - cloudrun/deploy:
+          image: 'gcr.io/${GOOGLE_PROJECT_ID}/glaive-api:${CIRCLE_SHA1}'
+          platform: managed
+          region: us-central1
+          service-name: igiari-api
+          unauthenticated: true
+      - cloudrun/deploy:
+          image: 'gcr.io/${GOOGLE_PROJECT_ID}/glaive-web:${CIRCLE_SHA1}'
+          platform: managed
+          region: us-central1
+          service-name: igiari-api
+          unauthenticated: true
 
 # This is currently unused.
   build-web:
@@ -37,3 +56,8 @@ workflows:
           dockerfile: ./web/Dockerfile
           image: glaive-web
           tag: $CIRCLE_SHA1
+      - deploy:
+          filters:
+            branches:
+              only:
+                - master
