@@ -61,8 +61,7 @@ workflows:
       - deploy:
           requires:
             - build
-            - gcp-gcr/build-and-push-image-1
-            - gcp-gcr/build-and-push-image-2
+            - gcp-gcr/build-and-push-image
           filters:
             branches:
               only:
