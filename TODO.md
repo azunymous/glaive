@@ -10,6 +10,8 @@ be passed in an env variable. Configure:
   
 - ! Create CI/CD pipeline and automate deployments
 - Rate limit API
+- Extract hardcoded values into configuration
+- Create local development environment
 
 - Create catalog page
 
