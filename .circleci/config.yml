@@ -33,5 +33,6 @@ workflows:
           tag: $CIRCLE_SHA1
       - gcp-gcr/build-and-push-image:
           docker-context: ./web/
+          workspace-root: ./web/
           image: glaive-web
           tag: $CIRCLE_SHA1
