@@ -1,18 +1,13 @@
 # TODO
 
-- Change API URI to api.igiari.net
+- Break apart main into packages
+- Extract hardcoded values into configuration such as board map and boards enabled
+- Create local development environment
+- Create catalog page
 - Upload entire /c/ imageset
 - Use $PORT for api
-- Refactor API to use config file as JSON so it can 
-be passed in an env variable. Configure:
-  - Board map
-  - Boards enabled
-  
-- Extract hardcoded values into configuration
-- Create local development environment
 
-- Create catalog page
-
+- Document setup for application deployment, S3 buckets and SQL
 - Add metrics / logging
 
 - Automate SQL DB creation
