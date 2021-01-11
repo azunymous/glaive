@@ -8,4 +8,8 @@
 ## What is glaive
 Glaive lets you replay imageboard threads from any time. It reads from a SQL database using the `asagi` schema. 
 
-It is still in development so it is missing a easily reproducible development environment just yet. It is built with Go and React. 
+It is still in development, so it is missing an easily reproducible development environment 
+just yet. 
+
+It is built with Go and React. 
+It is currently deployed on Google Cloud Platform using Cloud Run, GCS and Cloud SQL. 
