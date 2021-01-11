@@ -8,11 +8,12 @@ be passed in an env variable. Configure:
   - Board map
   - Boards enabled
   
-- ! Create CI/CD pipeline and automate deployments
-- Rate limit API
 - Extract hardcoded values into configuration
 - Create local development environment
 
 - Create catalog page
 
+- Add metrics / logging
+
 - Automate SQL DB creation
+- Rate limit API 
