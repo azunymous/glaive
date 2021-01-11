@@ -12,6 +12,8 @@ jobs:
 
       - run: go build -v ./cmd/glaive
       - run: go test -v ./...
+
+# This is currently unused.
   build-web:
     docker:
       - image: cimg/node:15.5.1
@@ -28,4 +30,8 @@ workflows:
       - gcp-gcr/build-and-push-image:
           #          docker-context: .
           image: glaive-api
+          tag: $CIRCLE_SHA1
+      - gcp-gcr/build-and-push-image:
+          docker-context: ./web/
+          image: glaive-web
           tag: $CIRCLE_SHA1
