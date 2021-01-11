@@ -1,0 +1,46 @@
+name: Glaive-API
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.15
+
+    - name: Build
+      run: go build -v ./cmd/glaive
+
+    - name: Test
+      run: go test -v ./...
+    - name: Build and push Docker images
+      # You may pin to the exact commit or the version.
+      # uses: docker/build-push-action@4a531fa5a603bab87dfa56578bd82b28508c9547
+      uses: docker/build-push-action@v2.2.2
+      with:
+        # Build's context is the set of files located in the specified PATH or URL
+        context: .
+        # List of tags
+        tags: $(git rev-parse --short "$GITHUB_SHA")
+    - name: Push Docker GCR
+      # You may pin to the exact commit or the version.
+      # uses: RaccoonDev/push-docker-gcr@cbff6c0d9f259694f4c6bd036866eb63e1630712
+      uses: RaccoonDev/push-docker-gcr@v1
+      with:
+        # Docker Image Name
+        image_name: glaive-api
+        # Docker Image Tag
+        image_tag: $(git rev-parse --short "$GITHUB_SHA")
+      env:
+        GCLOUD_SERVICE_KEY: ${{ secrets.GCLOUD_SERVICE_KEY }}
+        GOOGLE_PROJECT_ID: ${{ secrets.GOOGLE_PROJECT_ID }}
