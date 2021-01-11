@@ -47,12 +47,13 @@ workflows:
     jobs:
       - build
       - gcp-gcr/build-and-push-image:
-          #          docker-context: .
+          name: gcr-api
           image: glaive-api
           tag: $CIRCLE_SHA1
           requires:
             - build
       - gcp-gcr/build-and-push-image:
+          name: gcr-web
           docker-context: ./web/
           workspace-root: ./web/
           dockerfile: ./web/Dockerfile
@@ -61,7 +62,8 @@ workflows:
       - deploy:
           requires:
             - build
-            - gcp-gcr/build-and-push-image
+            - gcr-api
+            - gcr-web
           filters:
             branches:
               only:
