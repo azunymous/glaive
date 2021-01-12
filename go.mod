@@ -8,4 +8,5 @@ require (
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/json-iterator/go v1.1.10
 	github.com/rs/cors v1.7.0
+	github.com/spf13/viper v1.7.1
 )

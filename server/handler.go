@@ -15,7 +15,10 @@ import (
 )
 
 type API struct {
-	BoardRegistry map[string]*asagi.Loader
+	LoaderRegistry map[string]*asagi.Loader
+	URIRegistry    map[string]Board
+	Version        string
+	DefaultTime    string
 }
 
 func (a *API) Handler() http.Handler {
@@ -47,24 +50,20 @@ func getThreads(loader *asagi.Loader, time time.Time) ([]*board.Thread, error) {
 
 func (a *API) homePageHandler(w http.ResponseWriter, _ *http.Request) {
 	addHeaders(w)
-	_, _ = fmt.Fprintf(w, `{"V" : "1", "data" : "GLAIVE API"}`)
+	_, _ = fmt.Fprintf(w, `{"V" : "%s", "data" : "GLAIVE API"}`, a.Version)
 }
 
 func (a *API) overboardHandler(w http.ResponseWriter, _ *http.Request) {
 	addHeaders(w)
-	var boards = map[string]Board{
-		"/c/":  {Host: "https://igiari-api-t7tpkyzjrq-uc.a.run.app/c", Images: "https://storage.googleapis.com/igiari-glv-media"},
-		"/po/": {Host: "https://igiari-api-t7tpkyzjrq-uc.a.run.app/po", Images: "https://storage.googleapis.com/igiari-glv-media"},
-	}
 
 	w.WriteHeader(http.StatusOK)
-	_ = json.NewEncoder(w).Encode(boards)
+	_ = json.NewEncoder(w).Encode(a.URIRegistry)
 }
 
 func (a *API) getAllThreadsHandler(w http.ResponseWriter, r *http.Request) {
 	atUnixSec := r.URL.Query().Get("time")
 	if atUnixSec == "" {
-		atUnixSec = "1343080585"
+		atUnixSec = a.DefaultTime
 	}
 	log.Printf("Processing get all threads query for %s", atUnixSec)
 
@@ -75,7 +74,7 @@ func (a *API) getAllThreadsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	boardLoader, ok := a.BoardRegistry[chi.URLParam(r, "board")]
+	boardLoader, ok := a.LoaderRegistry[chi.URLParam(r, "board")]
 	if !ok {
 		w.WriteHeader(http.StatusNotFound)
 		_ = json.NewEncoder(w).Encode(boardResponse{Status: "FAILURE"})
@@ -110,7 +109,7 @@ func (a *API) getThreadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	boardLoader, ok := a.BoardRegistry[chi.URLParam(r, "board")]
+	boardLoader, ok := a.LoaderRegistry[chi.URLParam(r, "board")]
 	if !ok {
 		w.WriteHeader(http.StatusNotFound)
 		_ = json.NewEncoder(w).Encode(boardResponse{Status: "FAILURE"})

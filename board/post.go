@@ -52,6 +52,16 @@ func (t *Timestamp) MarshalJSON() ([]byte, error) {
 	return []byte(strconv.Itoa(int(timestamp))), nil
 }
 
+func (t *Timestamp) UnmarshalJSON(b []byte) (err error) {
+	i, err := strconv.Atoi(string(b))
+	if err != nil {
+		return err
+	}
+
+	t.Time = time.Unix(0, 0).Add(time.Duration(i) * time.Millisecond)
+	return nil
+}
+
 func (p Post) quotedBy(postQuotingNo uint64) Post {
 	p.QuotedBy = append(p.QuotedBy, postQuotingNo)
 	return p

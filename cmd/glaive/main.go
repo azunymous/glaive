@@ -3,43 +3,49 @@ package main
 import (
 	"fmt"
 	"glaive/adapter/asagi"
+	"glaive/config"
 	"glaive/server"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 )
-
-// TODO Replace with a struct and maybe dependency injection
-var boardRegistry map[string]*asagi.Loader
 
 func main() {
 	fmt.Printf("glaive")
 	var err error
-	dsn := os.Getenv("IGIARI_SQL_DSN")
-	if dsn == "" {
-		dsn = "root:mariadbrootpassword@tcp(127.0.0.1:3306)/asagi?charset=utf8&parseTime=True&loc=Local"
-	}
 
-	db, err := asagi.NewSqlConn(dsn)
-	if err != nil {
-		log.Fatal(err)
+	var configPath string
+	if len(os.Args) > 1 {
+		configPath = os.Args[1]
 	}
-	cloader, err := asagi.NewLoader("c", db)
-	if err != nil {
-		log.Fatal(err)
-	}
-	poloader, err := asagi.NewLoader("po", db)
+	conf := config.LoadConfig(configPath)
+
+	db, err := asagi.NewSqlConn(conf.DSN)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	boardRegistry = map[string]*asagi.Loader{
-		"c":  cloader,
-		"po": poloader,
+	loaderRegistry := make(map[string]*asagi.Loader, len(conf.Boards))
+	uriRegistry := make(map[string]server.Board, len(conf.Boards))
+	for name, uris := range conf.Boards {
+		letter := strings.TrimSuffix(strings.TrimPrefix(name, "/"), "/")
+		loader, err := asagi.NewLoader(letter, db)
+		if err != nil {
+			log.Fatal(err)
+		}
+		loaderRegistry[letter] = loader
+		uriRegistry[name] = server.Board{
+			Host:   uris.URI,
+			Images: uris.ImageURI,
+		}
 	}
 
 	srv := server.API{
-		BoardRegistry: boardRegistry,
+		LoaderRegistry: loaderRegistry,
+		URIRegistry:    uriRegistry,
+		DefaultTime:    conf.DefaultTime,
+		Version:        conf.Version,
 	}
 
 	log.Fatal(http.ListenAndServe(":8080", srv.Handler()))

@@ -1,7 +1,5 @@
 # TODO
 
-- Break apart main into packages
-- Extract hardcoded values into configuration such as board map and boards enabled
 - Create local development environment
 - Create catalog page
 - Upload entire /c/ imageset
