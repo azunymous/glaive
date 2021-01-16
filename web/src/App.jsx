@@ -46,7 +46,9 @@ function App() {
           <Router>
                     <span>
                         <ul id="menu">
-                            <li><Link to="/">Home</Link></li>
+                            <span className={"boardLink"}>
+                                <li key={"Home"}><Link to="/">Home</Link></li>
+                            </span>
                         <ShowBoardLinks/>
                         </ul>
                     </span>
@@ -55,6 +57,7 @@ function App() {
                 . . .
               </Route>
               <Route exact path="/:boardID/" children={<ShowBoard/>}/>
+              <Route exact path="/:boardID/catalog" children={<ShowBoard catalog={true}/>}/>
               <Route path="/:boardID/res/:threadNo" children={<ShowThread/>}/>
             </Switch>
           </Router>
@@ -80,7 +83,7 @@ function App() {
     return {apiURL, imageContext};
   }
 
-  function ShowBoard() {
+  function ShowBoard({catalog = false}) {
     let {boardID} = useParams();
     if (boards.length === 0) {
       return (
@@ -94,7 +97,7 @@ function App() {
     return (
         <div>
             <WorldClock time={worldTime} timeSetter={setWorldTime}/>
-            <Board name={boardID} apiUrl={apiURL} imageContext={imageContext} time={worldTime}/>
+            <Board name={boardID} apiUrl={apiURL} imageContext={imageContext} time={worldTime} catalog={catalog}/>
         </div>
 
     );
@@ -123,9 +126,9 @@ function App() {
       return <li>No Boards Found</li>
     }
 
-    return Object.keys(boards).map((id) => {
+    return Object.keys(boards).sort().map((id) => {
       return (
-          <li key={id}><Link to={id}>{id}</Link></li>
+          <span key={id} className={"boardLink"}><li ><Link to={id}>{id}</Link></li></span>
       )
     })
   }

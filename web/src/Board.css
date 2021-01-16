@@ -38,6 +38,41 @@ h2 {
     text-align: center;
 }
 
+.grid-container {
+    margin: 0 auto;
+    width: 99vw;
+    display: grid;
+    grid-template-columns: repeat(10, 1.5fr);
+    grid-template-rows: repeat(10, 1.5fr);
+    gap: 0px 0px;
+}
+
+.openingPost {
+    max-height: 335px;
+
+    height: auto;
+    overflow: hidden;
+}
+
+.catalogImage {
+    vertical-align: top;
+    display: inline-block;
+    text-align: center;
+}
+.catalogImage img {
+    max-width: 100%;
+    height: auto;
+}
+
+.catalogComment {
+    display: block;
+}
+
+.boardLink {
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
 .timer {
     float: left;
 }
@@ -78,8 +113,8 @@ span.postName {
 div.outer {
     background-color: #EBF4FE;
     position: absolute;
-    margin-left: 10%;
-    margin-right: 10%;
+    margin-left: 1%;
+    margin-right: 1%;
     width: 80%;
     min-height: 100%;
     height: auto !important;

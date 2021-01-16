@@ -1,6 +1,8 @@
 import React from 'react';
 import './Board.css';
 import Thread from "./Thread";
+import {Link} from "react-router-dom";
+import OpeningPost from "./OpeningPost";
 
 class Board extends React.Component {
   constructor(props) {
@@ -48,10 +50,24 @@ class Board extends React.Component {
   render() {
     return (
         <div>
+          {this.displayNav()}
           <h2>/{this.props.name}/</h2>
+
           {this.allThreads()}
         </div>
     );
+  }
+
+  displayNav() {
+    if (this.props.catalog) {
+      return <span className={"timer"}>
+            <Link to={"/" + this.props.name + "/"}>Return</Link>
+          </span>;
+    }
+
+    return <span className={"timer"}>
+            <Link to={"/" + this.props.name + "/catalog"}>Catalog</Link>
+          </span>;
   }
 
   allThreads() {
@@ -62,7 +78,14 @@ class Board extends React.Component {
       return (<div> . </div>)
     }
 
-    console.log(this.state.threads)
+    if (this.props.catalog) {
+      return <div className={"grid-container"}>{this.state.threads.map(thread => {
+        return (
+              <OpeningPost key={thread.post.no} board={this.props.name} thread={thread} imageContext={this.props.imageContext}/>)
+      })}
+      </div>
+    }
+
     let threads = this.state.threads.slice(0, 10);
     return threads.map((thread) => {
 
