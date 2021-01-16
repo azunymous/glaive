@@ -18,7 +18,10 @@ h2 {
     text-align: center;
     font-size: 16px;
     letter-spacing: 1px;
-    margin-top: 0px;
+    position: absolute;
+    margin-left: 1%;
+    margin-right: 1%;
+    width: 98%;
     margin-bottom: 5px;
     padding-bottom: 20px;
 }
@@ -115,7 +118,7 @@ div.outer {
     position: absolute;
     margin-left: 1%;
     margin-right: 1%;
-    width: 80%;
+    width: 98%;
     min-height: 100%;
     height: auto !important;
 }
