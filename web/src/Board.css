@@ -63,12 +63,17 @@ h2 {
     text-align: center;
 }
 .catalogImage img {
-    max-width: 100%;
+    max-width: 80%;
     height: auto;
 }
 
 .catalogComment {
+    text-align: center;
     display: block;
+}
+
+.catalogSubject {
+    font-weight: bold;
 }
 
 .boardLink {

@@ -69,7 +69,9 @@ function OpeningPost(props) {
         </Link>
        </figure>
         <figcaption className={"catalogComment"}>
-        {displayComment(thread.post, thread)}
+            <span
+                className="catalogSubject">{thread.subject}</span>
+                {displayComment(thread.post, thread)}
         </figcaption>
 
     </article>
