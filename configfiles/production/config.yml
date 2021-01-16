@@ -1,9 +1,12 @@
 boards:
+  /a/:
+    URI: https://api.igiari.net/a
+    ImageURI: https://storage.googleapis.com/igiari-glv-media
   /c/:
-    URI: https://igiari-api-t7tpkyzjrq-uc.a.run.app/c
+    URI: https://api.igiari.net/c
     ImageURI: https://storage.googleapis.com/igiari-glv-media
   /po/:
-    URI: https://igiari-api-t7tpkyzjrq-uc.a.run.app/po
+    URI: https://api.igiari.net/po
     ImageURI: https://storage.googleapis.com/igiari-glv-media
 defaultTime: 1343080585
-version: 1
+version: 2

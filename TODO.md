@@ -1,4 +1,7 @@
 # TODO
+- Move to and document alternative (inspired by https://archive.wakarimasen.moe/_/articles/about/):
+  - Backblaze B2 for object storage (images)
+  - Cloudflare
 
 - Create local development environment
 - Improve frontend CSS. Especially the catalog page. 
@@ -8,7 +11,6 @@
 - Upload entire /c/ imageset
 - Use $PORT for api
 
-- Document setup for application deployment, S3 buckets and SQL
 - Add metrics / logging
 
 - Automate SQL DB creation
