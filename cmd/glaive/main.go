@@ -48,5 +48,5 @@ func main() {
 		Version:        conf.Version,
 	}
 
-	log.Fatal(http.ListenAndServe(":8080", srv.Handler()))
+	log.Fatal(http.ListenAndServe(":"+conf.Port, srv.Handler()))
 }

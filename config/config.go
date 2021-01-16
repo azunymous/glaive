@@ -7,6 +7,9 @@ import (
 )
 
 type Data struct {
+	// The port to listen on. e.g '8080'
+	Port string
+
 	// Boards is a map of board to board URIs. The board should be in the format '/<characters>/'
 	// The board names are the enabled boards.
 	Boards map[string]Board `json:"boards"`
@@ -34,6 +37,7 @@ func LoadConfig(path string) Data {
 	v := viper.New()
 	v.SetEnvPrefix("IGIARI")
 
+	v.SetDefault("port", "8080")
 	v.SetDefault("boards", map[string]Board{})
 	v.SetDefault("dsn", "root:mariadbrootpassword@tcp(127.0.0.1:3306)/asagi?charset=utf8&parseTime=True&loc=Local")
 	v.SetDefault("defaultTime", "1343080585")
@@ -65,6 +69,11 @@ func LoadConfig(path string) Data {
 	// TODO: This is a backwards compatibility hack. This can be removed after this ENV Var is no longer used
 	if dsn := os.Getenv("IGIARI_SQL_DSN"); dsn != "" {
 		data.DSN = dsn
+	}
+
+	// Cloud Run requirement
+	if port := os.Getenv("PORT"); port != "" {
+		data.Port = port
 	}
 
 	return *data
