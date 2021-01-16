@@ -2,6 +2,8 @@
 
 - Create local development environment
 - Create catalog page
+- TESTS!
+- Upload other boards
 - Upload entire /c/ imageset
 - Use $PORT for api
 

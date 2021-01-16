@@ -1,0 +1,10 @@
+boards:
+  /c/:
+    URI: http://localhost:8080/c
+    ImageURI: /img/
+  /po/:
+    URI: http://localhost:8080/po
+    ImageURI: /img/
+defaultTime: 1343080585
+version: local
+dsn: root:mariadbrootpassword@tcp(127.0.0.1:3306)/asagi?charset=utf8&parseTime=True&loc=Local

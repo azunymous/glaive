@@ -1,6 +1,0 @@
-namespace: alice-web
-commonLabels:
-  app: alice-web
-resources:
-  - deployment.yaml
-  - service.yaml
